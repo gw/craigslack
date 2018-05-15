@@ -1,0 +1,111 @@
+import shelve
+
+from craigslist import CraigslistHousing
+from slackclient import SlackClient
+
+
+def filter_bedrooms(listing: dict, num_br=4):
+    bedrooms = listing['bedrooms']
+    if bedrooms is None or int(bedrooms) >= num_br:
+        return True
+    return False
+
+NEIGHBORHOODS = [
+    'berkeley',
+    'oakland',
+]
+def filter_where(listing: dict, hoods=None):
+    where = listing['where']
+    hoods = NEIGHBORHOODS if hoods is None else hoods
+
+    if where is None:
+        return True
+
+    if any(hood in where.lower() for hood in hoods):
+        return True
+
+    return False
+
+BLACKLISTED_WORDS = [
+    'studio',
+]
+def filter_name(listing: dict, blacklist=None):
+    name = listing['name']
+    blacklist = BLACKLISTED_WORDS if blacklist is None else blacklist
+
+    if name is None:
+        # This should really never happen
+        return True
+
+    if any(badword in name.lower() for badword in blacklist):
+        return False
+
+    return True
+
+def map_price_per_occupant(listing: dict):
+    price = listing['price']
+    bedrooms = listing['bedrooms']
+
+    if bedrooms is None or price is None:
+        listing['price_per_occupant'] = 'n/a'
+    else:
+        price = price.replace('$', '')
+        listing['price_per_occupant'] = int(price) // int(bedrooms)
+
+    return listing
+
+DB = 'listing.db'
+
+def seen(id: str) -> bool:
+    with shelve.open(DB) as db:
+        return True if id in db else False
+
+def update_seen(id: str):
+    with shelve.open(DB) as db:
+        db[id] = True
+
+SLACK_TOKEN = 'xoxp-361001369719-359725605972-361847283396-40e351a17f101eae780c0291a82a80fd'
+SLACK_CHANNEL = "#bot-test"
+
+def post_to_slack(params: dict):
+    if seen(params['id']):
+        print('SEEN')
+        return
+    if params['repost_of'] is not None and seen(params['repost_of']):
+        print('SEEN')
+        return
+
+    sc = SlackClient(SLACK_TOKEN)
+    desc = ">>>>>>>>>\n{}|${}|{}\n{}\n<{}>\n".format(
+        params["bedrooms"] or 'n/a',
+        params["price_per_occupant"],
+        params["where"],
+        params["name"],
+        params["url"],
+    )
+    sc.api_call(
+        "chat.postMessage", channel=SLACK_CHANNEL, text=desc,
+        username='craigslist-bot', icon_emoji=':robot_face:'
+    )
+
+    update_seen(params['id'])
+
+
+if __name__ == '__main__':
+    cl = CraigslistHousing(
+        site='sfbay',
+        area='eby',
+        category='apa',
+        filters={'max_price': 0, 'min_price': 0}
+    )
+
+    results = cl.get_results(sort_by='newest', geotagged=True, limit=50)
+
+    filtered = filter(filter_bedrooms, results)
+    filtered = filter(filter_where, filtered)
+    filtered = filter(filter_name, filtered)
+
+    mapped = map(map_price_per_occupant, filtered)
+
+    for listing in mapped:
+        post_to_slack(listing)

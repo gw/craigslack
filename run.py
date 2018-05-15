@@ -100,10 +100,12 @@ if __name__ == '__main__':
     )
 
     results = cl.get_results(sort_by='newest', geotagged=True, limit=50)
+    print('Found {} initial results'.format(len(results)))
 
     filtered = filter(filter_bedrooms, results)
     filtered = filter(filter_where, filtered)
     filtered = filter(filter_name, filtered)
+    print('Found {} filtered results'.format(len(filtered)))
 
     mapped = map(map_price_per_occupant, filtered)
 

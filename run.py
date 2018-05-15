@@ -69,11 +69,9 @@ SLACK_CHANNEL = "#bot-test"
 
 def post_to_slack(params: dict):
     if seen(params['id']):
-        print('SEEN')
-        return
+        return False
     if params['repost_of'] is not None and seen(params['repost_of']):
-        print('SEEN')
-        return
+        return False
 
     sc = SlackClient(SLACK_TOKEN)
     desc = ">>>>>>>>>\n{}|${}|{}\n{}\n<{}>\n".format(
@@ -90,6 +88,8 @@ def post_to_slack(params: dict):
 
     update_seen(params['id'])
 
+    return True
+
 
 if __name__ == '__main__':
     cl = CraigslistHousing(
@@ -100,14 +100,21 @@ if __name__ == '__main__':
     )
 
     results = cl.get_results(sort_by='newest', geotagged=True, limit=50)
-    print('Found {} initial results'.format(len(results)))
+    num_results = len(list(results))
+    print('Found {} initial results'.format(num_results))
 
     filtered = filter(filter_bedrooms, results)
     filtered = filter(filter_where, filtered)
     filtered = filter(filter_name, filtered)
-    print('Found {} filtered results'.format(len(filtered)))
+    num_filtered = len(list(filtered))
+    print('Filtered down to {} results'.format(num_filtered))
 
     mapped = map(map_price_per_occupant, filtered)
 
+    skipped = 0
     for listing in mapped:
-        post_to_slack(listing)
+        if not post_to_slack(listing):
+            skipped += 1
+
+    print('Posted {} new results'.format(num_filtered - skipped))
+

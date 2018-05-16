@@ -1,5 +1,7 @@
 import os
+import random
 import shelve
+import time
 
 from craigslist import CraigslistHousing
 from slackclient import SlackClient
@@ -73,6 +75,8 @@ def post_to_slack(params: dict):
         return False
     if params['repost_of'] is not None and seen(params['repost_of']):
         return False
+
+    time.sleep(random.randint(0, 120))
 
     sc = SlackClient(SLACK_TOKEN)
     desc = ">>>>>>>>>\n{}|${}|{}\n{}\n<{}>\n".format(

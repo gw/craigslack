@@ -1,3 +1,4 @@
+import os
 import shelve
 
 from craigslist import CraigslistHousing
@@ -64,7 +65,7 @@ def update_seen(id: str):
     with shelve.open(DB) as db:
         db[id] = True
 
-SLACK_TOKEN = 'xoxp-361001369719-359725605972-361847283396-40e351a17f101eae780c0291a82a80fd'
+SLACK_TOKEN = os.environ['SLACK_TOKEN']
 SLACK_CHANNEL = "#bot-test"
 
 def post_to_slack(params: dict):

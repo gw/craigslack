@@ -1,3 +1,4 @@
+import datetime
 import os
 import random
 import shelve
@@ -96,6 +97,8 @@ def post_to_slack(params: dict):
 
 if __name__ == '__main__':
     time.sleep(random.randint(0, 120))
+
+    print('Starting job: {}'.format(datetime.datetime.now()))
 
     cl = CraigslistHousing(
         site='sfbay',

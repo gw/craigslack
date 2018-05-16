@@ -69,7 +69,8 @@ def update_seen(id: str):
         db[id] = True
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
-SLACK_CHANNEL = "#bot-test"
+LISTING_CHANNEL = "#thehunt"
+LOG_CHANNEL = "#bot-logs"
 
 def post_to_slack(params: dict):
     if seen(params['id']):
@@ -86,8 +87,8 @@ def post_to_slack(params: dict):
         params["url"],
     )
     sc.api_call(
-        "chat.postMessage", channel=SLACK_CHANNEL, text=desc,
-        username='craigslist-bot', icon_emoji=':robot_face:'
+        "chat.postMessage", channel=LISTING_CHANNEL, text=desc,
+        username='craig', icon_emoji=':robot_face:'
     )
 
     update_seen(params['id'])
@@ -124,5 +125,17 @@ if __name__ == '__main__':
         if not post_to_slack(listing):
             skipped += 1
 
-    print('Posted {} new results'.format(len(filtered) - skipped))
+    posted = len(filtered) - skipped
+    print('Posted {} new results'.format(posted))
+
+    sc = SlackClient(SLACK_TOKEN)
+    desc = "Found {}, filtered to {}, posted {}".format(
+        len(results),
+        len(filtered),
+        posted,
+    )
+    sc.api_call(
+        "chat.postMessage", channel=LISTING_CHANNEL, text=desc,
+        username='craig-logs', icon_emoji=':robot_face:'
+    )
 

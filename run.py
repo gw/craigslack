@@ -135,7 +135,7 @@ if __name__ == '__main__':
         posted,
     )
     sc.api_call(
-        "chat.postMessage", channel=LISTING_CHANNEL, text=desc,
+        "chat.postMessage", channel=LOG_CHANNEL, text=desc,
         username='craig-logs', icon_emoji=':robot_face:'
     )
 

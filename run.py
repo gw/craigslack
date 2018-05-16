@@ -108,14 +108,14 @@ if __name__ == '__main__':
     )
 
     results = cl.get_results(sort_by='newest', geotagged=True, limit=50)
-    num_results = len(list(results))
-    print('Found {} initial results'.format(num_results))
+    results = list(results)
+    print('Found {} initial results'.format(len(results)))
 
     filtered = filter(filter_bedrooms, results)
     filtered = filter(filter_where, filtered)
     filtered = filter(filter_name, filtered)
-    num_filtered = len(list(filtered))
-    print('Filtered down to {} results'.format(num_filtered))
+    filtered = list(filtered)
+    print('Filtered down to {} results'.format(len(filtered)))
 
     mapped = map(map_price_per_occupant, filtered)
 
@@ -124,5 +124,5 @@ if __name__ == '__main__':
         if not post_to_slack(listing):
             skipped += 1
 
-    print('Posted {} new results'.format(num_filtered - skipped))
+    print('Posted {} new results'.format(len(filtered) - skipped))
 

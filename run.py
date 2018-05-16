@@ -76,8 +76,6 @@ def post_to_slack(params: dict):
     if params['repost_of'] is not None and seen(params['repost_of']):
         return False
 
-    time.sleep(random.randint(0, 120))
-
     sc = SlackClient(SLACK_TOKEN)
     desc = ">>>>>>>>>\n{}|${}|{}\n{}\n<{}>\n".format(
         params["bedrooms"] or 'n/a',
@@ -97,6 +95,8 @@ def post_to_slack(params: dict):
 
 
 if __name__ == '__main__':
+    time.sleep(random.randint(0, 120))
+
     cl = CraigslistHousing(
         site='sfbay',
         area='eby',

@@ -69,7 +69,7 @@ def update_seen(id: str):
         db[id] = True
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
-LISTING_CHANNEL = "#thehunt"
+LISTING_CHANNEL = "#bot-incoming"
 LOG_CHANNEL = "#bot-logs"
 
 def post_to_slack(params: dict):

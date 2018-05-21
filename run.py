@@ -33,6 +33,16 @@ def filter_where(listing: dict, hoods=None):
 BLACKLISTED_WORDS = [
     'studio',
 ]
+BR_STRINGS = [
+    '{} bed',
+    '{}bed',
+    '{} br',
+    '{}br',
+]
+
+for s in BR_STRINGS:
+    BLACKLISTED_WORDS = BLACKLISTED_WORDS + [s.format(num) for num in [1, 2, 3]]
+
 def filter_name(listing: dict, blacklist=None):
     name = listing['name']
     blacklist = BLACKLISTED_WORDS if blacklist is None else blacklist

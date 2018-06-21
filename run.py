@@ -33,6 +33,7 @@ def filter_where(listing: dict, hoods=None):
 
 BLACKLISTED_WORDS = [
     'studio',
+    '\"fully remodeled\" 4 bed, 1 bath, duplex',  # Spammy post that keeps appearing
 ]
 BR_STRINGS = [
     '{} bed',

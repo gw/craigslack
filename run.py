@@ -8,9 +8,10 @@ from craigslist import CraigslistHousing
 from slackclient import SlackClient
 
 
-def filter_bedrooms(listing: dict, num_br=4):
+def filter_bedrooms(listing: dict):
+    MIN_BR = 3
     bedrooms = listing['bedrooms']
-    if bedrooms is None or int(bedrooms) >= num_br:
+    if bedrooms is None or int(bedrooms) >= MIN_BR:
         return True
     return False
 
@@ -41,7 +42,7 @@ BR_STRINGS = [
 ]
 
 for s in BR_STRINGS:
-    BLACKLISTED_WORDS = BLACKLISTED_WORDS + [s.format(num) for num in [1, 2, 3]]
+    BLACKLISTED_WORDS = BLACKLISTED_WORDS + [s.format(num) for num in [1, 2]]
 
 def filter_name(listing: dict, blacklist=None):
     name = listing['name']
